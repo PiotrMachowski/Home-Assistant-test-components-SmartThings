@@ -31,6 +31,7 @@ SUPPORTED_PLATFORMS = [
     "light",
     "lock",
     "cover",
+    "media_player",
     "switch",
     "binary_sensor",
     "sensor",

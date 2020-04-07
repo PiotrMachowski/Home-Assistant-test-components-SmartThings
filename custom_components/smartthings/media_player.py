@@ -281,19 +281,19 @@ class MediaPlayerDeviceEntity:
     async def play(self, set_status: bool = False, *, component_id: str = 'main') -> bool:
         result = await self._device.command(component_id, Capability.media_playback, MediaPlayerCommand.play)
         if result and set_status:
-            self._device.status.update_attribute_value(Attribute.playback_status, MediaPlayerCommand.play)
+            self._device.status.update_attribute_value(Attribute.playback_status, 'playing')
         return result
 
     async def pause(self, set_status: bool = False, *, component_id: str = 'main') -> bool:
         result = await self._device.command(component_id, Capability.media_playback, MediaPlayerCommand.pause)
         if result and set_status:
-            self._device.status.update_attribute_value(Attribute.playback_status, MediaPlayerCommand.pause)
+            self._device.status.update_attribute_value(Attribute.playback_status, 'paused')
         return result
 
     async def stop(self, set_status: bool = False, *, component_id: str = 'main') -> bool:
         result = await self._device.command(component_id, Capability.media_playback, MediaPlayerCommand.stop)
         if result and set_status:
-            self._device.status.update_attribute_value(Attribute.playback_status, MediaPlayerCommand.stop)
+            self._device.status.update_attribute_value(Attribute.playback_status, 'paused')
         return result
 
     async def set_input_source(self, source: str, set_status: bool = False, *, component_id: str = 'main') -> bool:

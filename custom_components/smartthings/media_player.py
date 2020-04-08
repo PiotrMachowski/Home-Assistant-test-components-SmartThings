@@ -130,7 +130,7 @@ class SmartThingsMediaPlayer(SmartThingsEntity, MediaPlayerDevice):
         self.async_schedule_update_ha_state()
 
     async def async_media_pause(self):
-        await self._media_device.play(set_status=True)
+        await self._media_device.pause(set_status=True)
         self.async_schedule_update_ha_state()
 
     async def async_media_stop(self):

@@ -198,6 +198,13 @@ class SmartThingsMediaPlayer(SmartThingsEntity, MediaPlayerDevice):
             return self._media_device.playback_shuffle()
         return None
 
+    @property
+    def should_poll(self) -> bool:
+        return True
+
+    async def async_update(self):
+        self._media_device.refresh()
+
 
 class MediaPlayerCommand:
     mute = 'mute'
@@ -311,3 +318,6 @@ class MediaPlayerDeviceEntity:
         if result and set_status:
             self._device.status.update_attribute_value(Attribute.playback_status, shuffle_value)
         return result
+
+    async def refresh(self, *, component_id: str = 'main'):
+        return await self._device.command(component_id, 'refresh', 'refresh')

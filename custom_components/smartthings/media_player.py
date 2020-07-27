@@ -4,7 +4,7 @@ from typing import Optional, Sequence
 from pysmartthings import Capability, DeviceEntity
 
 from homeassistant.components.media_player import (
-    MediaPlayerDevice,
+    MediaPlayerEntity,
     DEVICE_CLASS_SPEAKER,
 )
 from homeassistant.components.media_player.const import (
@@ -72,7 +72,7 @@ def get_capabilities(capabilities: Sequence[str]) -> Optional[Sequence[str]]:
     return None
 
 
-class SmartThingsMediaPlayer(SmartThingsEntity, MediaPlayerDevice):
+class SmartThingsMediaPlayer(SmartThingsEntity, MediaPlayerEntity):
 
     def __init__(self, device: DeviceEntity):
         """Initialize the media_player class."""

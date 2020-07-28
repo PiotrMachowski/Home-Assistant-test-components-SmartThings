@@ -1,4 +1,3 @@
-# /srv/homeassistant/lib/python3.7/site-packages/homeassistant/components/smartthings
 from typing import Optional, Sequence
 
 from pysmartthings import Capability, DeviceEntity

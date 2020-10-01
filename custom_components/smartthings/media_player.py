@@ -95,6 +95,7 @@ class SmartThingsMediaPlayer(SmartThingsEntity, MediaPlayerEntity):
         await self._device.switch_off(set_status=True)
         # State is set optimistically in the command above, therefore update
         # the entity state ahead of receiving the confirming push updates
+        self.async_schedule_update_ha_state()
         self.async_write_ha_state()
 
     async def async_turn_on(self, **kwargs) -> None:
@@ -102,46 +103,46 @@ class SmartThingsMediaPlayer(SmartThingsEntity, MediaPlayerEntity):
         await self._device.switch_on(set_status=True)
         # State is set optimistically in the command above, therefore update
         # the entity state ahead of receiving the confirming push updates
-        self.async_write_ha_state()
+        self.async_schedule_update_ha_state()
 
     async def async_mute_volume(self, mute):
         if mute:
             await self._device.mute(set_status=True)
         else:
             await self._device.unmute(set_status=True)
-        self.async_write_ha_state()
+        self.async_schedule_update_ha_state()
 
     async def async_set_volume_level(self, volume):
         await self._device.set_volume(int(volume * 100), set_status=True)
-        self.async_write_ha_state()
+        self.async_schedule_update_ha_state()
 
     async def async_volume_up(self):
         await self._device.volume_up(set_status=True)
-        self.async_write_ha_state()
+        self.async_schedule_update_ha_state()
 
     async def async_volume_down(self):
         await self._device.volume_down(set_status=True)
-        self.async_write_ha_state()
+        self.async_schedule_update_ha_state()
 
     async def async_media_play(self):
         await self._device.play(set_status=True)
-        self.async_write_ha_state()
+        self.async_schedule_update_ha_state()
 
     async def async_media_pause(self):
         await self._device.pause(set_status=True)
-        self.async_write_ha_state()
+        self.async_schedule_update_ha_state()
 
     async def async_media_stop(self):
         await self._device.stop(set_status=True)
-        self.async_write_ha_state()
+        self.async_schedule_update_ha_state()
 
     async def async_select_source(self, source):
         await self._device.set_input_source(source, set_status=True)
-        self.async_write_ha_state()
+        self.async_schedule_update_ha_state()
 
     async def async_set_shuffle(self, shuffle):
         await self._device.set_playback_shuffle(shuffle, set_status=True)
-        self.async_write_ha_state()
+        self.async_schedule_update_ha_state()
 
     @property
     def device_class(self):

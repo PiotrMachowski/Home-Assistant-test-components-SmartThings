@@ -17,7 +17,8 @@ from homeassistant.components.media_player.const import (
     SUPPORT_VOLUME_MUTE,
     SUPPORT_VOLUME_STEP,
     SUPPORT_VOLUME_SET,
-    SUPPORT_SHUFFLE_SET
+    SUPPORT_SHUFFLE_SET,
+    SUPPORT_REPEAT_SET
 )
 from homeassistant.const import (
     STATE_PLAYING,
@@ -64,6 +65,7 @@ def get_capabilities(capabilities: Sequence[str]) -> Optional[Sequence[str]]:
         Capability.media_input_source,
         Capability.audio_mute,
         Capability.media_playback,
+        Capability.media_playback_repeat,
     ]
     # Must have one of the min_required
     if any(capability in capabilities for capability in min_required):
@@ -89,6 +91,8 @@ class SmartThingsMediaPlayer(SmartThingsEntity, MediaPlayerEntity):
             self._supported_features |= SUPPORT_SELECT_SOURCE
         if Capability.media_playback_shuffle in device.capabilities:
             self._supported_features |= SUPPORT_SHUFFLE_SET
+        if Capability.media_playback_repeat in device.capabilities:
+            self._supported_features |= SUPPORT_REPEAT_SET
 
     async def async_turn_off(self, **kwargs) -> None:
         """Turn the switch off."""
@@ -144,6 +148,10 @@ class SmartThingsMediaPlayer(SmartThingsEntity, MediaPlayerEntity):
         await self._device.set_playback_shuffle(shuffle, set_status=True)
         self.async_schedule_update_ha_state()
 
+    async def async_set_repeat(self, repeat):
+        await self._device.set_repeat(repeat, set_status=True)
+        self.async_schedule_update_ha_state()
+
     @property
     def device_class(self):
         return DEVICE_CLASS_SPEAKER
@@ -195,6 +203,12 @@ class SmartThingsMediaPlayer(SmartThingsEntity, MediaPlayerEntity):
     def shuffle(self):
         if self.supported_features & SUPPORT_SHUFFLE_SET:
             return self._device.status.playback_shuffle
+        return None
+
+    @property
+    def repeat(self):
+        if self.supported_features & SUPPORT_REPEAT_SET:
+            return self._device.status.playback_repeat_mode
         return None
 
     @property

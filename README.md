@@ -10,5 +10,7 @@ Features:
 - Show current state: on/off/playing/paused/idle
 - Show if muted/unmuted
 - Show current source
+- Show/set shuffle mode
+- Show/set repeat mode
 
 Tested on Samsung HW-Q80R soundbar

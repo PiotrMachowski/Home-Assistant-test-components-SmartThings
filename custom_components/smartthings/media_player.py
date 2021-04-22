@@ -1,4 +1,6 @@
-from typing import Optional, Sequence
+from __future__ import annotations
+
+from typing import Sequence
 
 from pysmartthings import Capability, DeviceEntity
 
@@ -52,7 +54,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     )
 
 
-def get_capabilities(capabilities: Sequence[str]) -> Optional[Sequence[str]]:
+def get_capabilities(capabilities: Sequence[str]) -> Sequence[str] | None:
     """Return all capabilities supported if minimum required are present."""
     min_required = [
         Capability.media_playback,

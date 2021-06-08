@@ -1,7 +1,4 @@
-from __future__ import annotations
-
-from typing import Sequence
-
+from collections.abc import Sequence
 from pysmartthings import Capability, DeviceEntity
 
 from homeassistant.components.media_player import (

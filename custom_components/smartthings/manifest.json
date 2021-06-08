@@ -7,5 +7,28 @@
   "dependencies": ["webhook"],
   "after_dependencies": ["cloud"],
   "codeowners": ["@andrewsayre", "@piotrma"],
-  "version": "2021.4.6"
+  "version": "2021.6.3",
+  "iot_class": "cloud_push",
+  "dhcp": [
+    {
+      "hostname": "st*",
+      "macaddress": "24FD5B*"
+    },
+    {
+      "hostname": "smartthings*",
+      "macaddress": "24FD5B*"
+    },
+    {
+      "hostname": "hub*",
+      "macaddress": "24FD5B*"
+    },
+    {
+      "hostname": "hub*",
+      "macaddress": "D052A8*"
+    },
+    {
+      "hostname": "hub*",
+      "macaddress": "286D97*"
+    }
+  ]
 }

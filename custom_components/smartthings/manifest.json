@@ -7,7 +7,7 @@
   "dependencies": ["webhook"],
   "after_dependencies": ["cloud"],
   "codeowners": ["@andrewsayre", "@piotrma"],
-  "version": "2021.6.3",
+  "version": "2021.8.4",
   "iot_class": "cloud_push",
   "dhcp": [
     {

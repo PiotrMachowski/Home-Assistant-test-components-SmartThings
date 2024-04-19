@@ -1,4 +1,6 @@
 """Config flow to configure SmartThings."""
+
+from http import HTTPStatus
 import logging
 
 from aiohttp import ClientResponseError
@@ -6,14 +8,8 @@ from pysmartthings import APIResponseError, AppOAuth, SmartThings
 from pysmartthings.installedapp import format_install_url
 import voluptuous as vol
 
-from homeassistant import config_entries
-from homeassistant.const import (
-    CONF_ACCESS_TOKEN,
-    CONF_CLIENT_ID,
-    CONF_CLIENT_SECRET,
-    HTTP_FORBIDDEN,
-    HTTP_UNAUTHORIZED,
-)
+from homeassistant.config_entries import ConfigFlow
+from homeassistant.const import CONF_ACCESS_TOKEN, CONF_CLIENT_ID, CONF_CLIENT_SECRET
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .const import (
@@ -40,12 +36,12 @@ from .smartapp import (
 _LOGGER = logging.getLogger(__name__)
 
 
-class SmartThingsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
+class SmartThingsFlowHandler(ConfigFlow, domain=DOMAIN):
     """Handle configuration of SmartThings integrations."""
 
     VERSION = 2
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Create a new instance of the flow handler."""
         self.access_token = None
         self.app_id = None
@@ -55,6 +51,7 @@ class SmartThingsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         self.installed_app_id = None
         self.refresh_token = None
         self.location_id = None
+        self.endpoints_initialized = False
 
     async def async_step_import(self, user_input=None):
         """Occurs when a previously entry setup fails and is re-initiated."""
@@ -62,7 +59,11 @@ class SmartThingsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def async_step_user(self, user_input=None):
         """Validate and confirm webhook setup."""
-        await setup_smartapp_endpoint(self.hass)
+        if not self.endpoints_initialized:
+            self.endpoints_initialized = True
+            await setup_smartapp_endpoint(
+                self.hass, len(self._async_current_entries()) == 0
+            )
         webhook_url = get_webhook_url(self.hass)
 
         # Abort if the webhook is invalid
@@ -71,7 +72,9 @@ class SmartThingsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 reason="invalid_webhook_url",
                 description_placeholders={
                     "webhook_url": webhook_url,
-                    "component_url": "https://www.home-assistant.io/integrations/smartthings/",
+                    "component_url": (
+                        "https://www.home-assistant.io/integrations/smartthings/"
+                    ),
                 },
             )
 
@@ -142,12 +145,12 @@ class SmartThingsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             )
             return self._show_step_pat(errors)
         except ClientResponseError as ex:
-            if ex.status == HTTP_UNAUTHORIZED:
+            if ex.status == HTTPStatus.UNAUTHORIZED:
                 errors[CONF_ACCESS_TOKEN] = "token_unauthorized"
                 _LOGGER.debug(
                     "Unauthorized error received setting up SmartApp", exc_info=True
                 )
-            elif ex.status == HTTP_FORBIDDEN:
+            elif ex.status == HTTPStatus.FORBIDDEN:
                 errors[CONF_ACCESS_TOKEN] = "token_forbidden"
                 _LOGGER.debug(
                     "Forbidden error received setting up SmartApp", exc_info=True
@@ -221,7 +224,9 @@ class SmartThingsFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
             errors=errors,
             description_placeholders={
                 "token_url": "https://account.smartthings.com/tokens",
-                "component_url": "https://www.home-assistant.io/integrations/smartthings/",
+                "component_url": (
+                    "https://www.home-assistant.io/integrations/smartthings/"
+                ),
             },
         )
 

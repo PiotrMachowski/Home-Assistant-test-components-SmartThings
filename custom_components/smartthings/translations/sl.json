@@ -1,11 +1,9 @@
 {
     "config": {
         "abort": {
-            "invalid_webhook_url": "Home Assistant ni pravilno konfiguriran za sprejemanje posodobitev SmartThings. URL webhook-a je neveljaven: \n > {webhook_url} \n\n Posodobite konfiguracijo po [navodilih] ({component_url}), nato znova za\u017eenite Home Assistant-a in poskusite znova.",
-            "no_available_locations": "Na voljo ni nobenih lokacij SmartThings, ki bi jih bilo mogo\u010de nastaviti v programu Home Assistant."
+            "invalid_webhook_url": "Home Assistant ni pravilno konfiguriran za sprejemanje posodobitev SmartThings. URL webhook-a je neveljaven: \n > {webhook_url} \n\n Posodobite konfiguracijo po [navodilih] ({component_url}), nato znova za\u017eenite Home Assistant-a in poskusite znova."
         },
         "error": {
-            "app_setup_error": "SmartApp ni mogo\u010de nastaviti. Prosim poskusite ponovno.",
             "token_forbidden": "\u017deton nima zahtevanih OAuth obsegov.",
             "token_invalid_format": "\u017deton mora biti v formatu UID / GUID",
             "token_unauthorized": "\u017deton ni veljaven ali ni ve\u010d poobla\u0161\u010den.",
@@ -23,9 +21,6 @@
                 "title": "Vnesite \u017eeton za osebni dostop"
             },
             "select_location": {
-                "data": {
-                    "location_id": "Lokacija"
-                },
                 "description": "Izberite lokacijo SmartThings, ki jo \u017eelite dodati v Home Assistant. Nato odpremo novo okno in vas prosimo, da se prijavite in pooblastite namestitev integracije Home Assistant na izbrano lokacijo.",
                 "title": "Izberite Lokacijo"
             },

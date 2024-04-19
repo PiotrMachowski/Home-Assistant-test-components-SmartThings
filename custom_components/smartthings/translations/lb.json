@@ -1,11 +1,9 @@
 {
     "config": {
         "abort": {
-            "invalid_webhook_url": "Home Assistant ass net richteg konfigur\u00e9iert fir Updates vun SmartThings z'empf\u00e4nken.\nWebhook URL ass ong\u00eblteg:\n>{webhook_url}\n\u00c4nner deng Konfiguratioun sou w\u00e9i an den [Instruktioune]({component_url}) start Home Assistant fr\u00ebsch an prob\u00e9ier nach eemol.",
-            "no_available_locations": "Keng disponibel Smartthings Standuerte fir am Home Assistant anzeriichten."
+            "invalid_webhook_url": "Home Assistant ass net richteg konfigur\u00e9iert fir Updates vun SmartThings z'empf\u00e4nken.\nWebhook URL ass ong\u00eblteg:\n>{webhook_url}\n\u00c4nner deng Konfiguratioun sou w\u00e9i an den [Instruktioune]({component_url}) start Home Assistant fr\u00ebsch an prob\u00e9ier nach eemol."
         },
         "error": {
-            "app_setup_error": "Kann SmartApp net install\u00e9ieren. Prob\u00e9iert w.e.g. nach emol.",
             "token_forbidden": "De Jeton huet net d\u00e9i n\u00e9ideg OAuth M\u00e9iglechkeeten.",
             "token_invalid_format": "De Jeton muss am UID/GUID Format sinn",
             "token_unauthorized": "De Jeton ass ong\u00eblteg oder net m\u00e9i autoris\u00e9iert.",

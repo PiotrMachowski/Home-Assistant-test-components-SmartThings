@@ -17,7 +17,7 @@
             },
             "pat": {
                 "data": {
-                    "access_token": "Token Akses"
+                    "access_token": "Token akses"
                 },
                 "description": "Masukkan [Token Akses Pribadi]({token_url}) SmartThings yang telah dibuat sesuai [petunjuk]({component_url}). Ini akan digunakan untuk membuat integrasi Home Assistant dalam akun SmartThings Anda.",
                 "title": "Masukkan Token Akses Pribadi"

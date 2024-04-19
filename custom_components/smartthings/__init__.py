@@ -1,8 +1,10 @@
 """Support for SmartThings Cloud."""
+
 from __future__ import annotations
 
 import asyncio
 from collections.abc import Iterable
+from http import HTTPStatus
 import importlib
 import logging
 
@@ -12,16 +14,12 @@ from pysmartthings import Attribute, Capability, SmartThings
 from pysmartthings.device import DeviceEntity
 
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
-from homeassistant.const import (
-    CONF_ACCESS_TOKEN,
-    CONF_CLIENT_ID,
-    CONF_CLIENT_SECRET,
-    HTTP_FORBIDDEN,
-    HTTP_UNAUTHORIZED,
-)
+from homeassistant.const import CONF_ACCESS_TOKEN, CONF_CLIENT_ID, CONF_CLIENT_SECRET
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.dispatcher import (
     async_dispatcher_connect,
     async_dispatcher_send,
@@ -29,6 +27,7 @@ from homeassistant.helpers.dispatcher import (
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.typing import ConfigType
+from homeassistant.loader import async_get_loaded_integration
 
 from .config_flow import SmartThingsFlowHandler  # noqa: F401
 from .const import (
@@ -56,10 +55,12 @@ from .smartapp import (
 
 _LOGGER = logging.getLogger(__name__)
 
+CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
-async def async_setup(hass: HomeAssistant, config: ConfigType):
+
+async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     """Initialize the SmartThings platform."""
-    await setup_smartapp_endpoint(hass)
+    await setup_smartapp_endpoint(hass, False)
     return True
 
 
@@ -73,8 +74,7 @@ async def async_migrate_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Remove the entry which will invoke the callback to delete the app.
     hass.async_create_task(hass.config_entries.async_remove(entry.entry_id))
     # only create new flow if there isn't a pending one for SmartThings.
-    flows = hass.config_entries.flow.async_progress()
-    if not [flow for flow in flows if flow["handler"] == DOMAIN]:
+    if not hass.config_entries.flow.async_progress_by_handler(DOMAIN):
         hass.async_create_task(
             hass.config_entries.flow.async_init(
                 DOMAIN, context={"source": SOURCE_IMPORT}
@@ -98,11 +98,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     if not validate_webhook_requirements(hass):
         _LOGGER.warning(
-            "The 'base_url' of the 'http' integration must be configured and start with 'https://'"
+            "The 'base_url' of the 'http' integration must be configured and start with"
+            " 'https://'"
         )
         return False
 
     api = SmartThings(async_get_clientsession(hass), entry.data[CONF_ACCESS_TOKEN])
+
+    # Ensure platform modules are loaded since the DeviceBroker will
+    # import them below and we want them to be cached ahead of time
+    # so the integration does not do blocking I/O in the event loop
+    # to import the modules.
+    await async_get_loaded_integration(hass, DOMAIN).async_get_platforms(PLATFORMS)
 
     remove_entry = False
     try:
@@ -141,7 +148,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
                 await device.status.refresh()
             except ClientResponseError:
                 _LOGGER.debug(
-                    "Unable to update status for device: %s (%s), the device will be excluded",
+                    (
+                        "Unable to update status for device: %s (%s), the device will"
+                        " be excluded"
+                    ),
                     device.label,
                     device.device_id,
                     exc_info=True,
@@ -165,9 +175,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.data[DOMAIN][DATA_BROKERS][entry.entry_id] = broker
 
     except ClientResponseError as ex:
-        if ex.status in (HTTP_UNAUTHORIZED, HTTP_FORBIDDEN):
+        if ex.status in (HTTPStatus.UNAUTHORIZED, HTTPStatus.FORBIDDEN):
             _LOGGER.exception(
-                "Unable to setup configuration entry '%s' - please reconfigure the integration",
+                (
+                    "Unable to setup configuration entry '%s' - please reconfigure the"
+                    " integration"
+                ),
                 entry.title,
             )
             remove_entry = True
@@ -181,8 +194,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if remove_entry:
         hass.async_create_task(hass.config_entries.async_remove(entry.entry_id))
         # only create new flow if there isn't a pending one for SmartThings.
-        flows = hass.config_entries.flow.async_progress()
-        if not [flow for flow in flows if flow["handler"] == DOMAIN]:
+        if not hass.config_entries.flow.async_progress_by_handler(DOMAIN):
             hass.async_create_task(
                 hass.config_entries.flow.async_init(
                     DOMAIN, context={"source": SOURCE_IMPORT}
@@ -190,7 +202,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             )
         return False
 
-    hass.config_entries.async_setup_platforms(entry, PLATFORMS)
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     return True
 
 
@@ -199,9 +211,12 @@ async def async_get_entry_scenes(entry: ConfigEntry, api):
     try:
         return await api.scenes(location_id=entry.data[CONF_LOCATION_ID])
     except ClientResponseError as ex:
-        if ex.status == HTTP_FORBIDDEN:
+        if ex.status == HTTPStatus.FORBIDDEN:
             _LOGGER.exception(
-                "Unable to load scenes for configuration entry '%s' because the access token does not have the required access",
+                (
+                    "Unable to load scenes for configuration entry '%s' because the"
+                    " access token does not have the required access"
+                ),
                 entry.title,
             )
         else:
@@ -209,7 +224,7 @@ async def async_get_entry_scenes(entry: ConfigEntry, api):
     return []
 
 
-async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
+async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Unload a config entry."""
     broker = hass.data[DOMAIN][DATA_BROKERS].pop(entry.entry_id, None)
     if broker:
@@ -222,12 +237,12 @@ async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
     """Perform clean-up when entry is being removed."""
     api = SmartThings(async_get_clientsession(hass), entry.data[CONF_ACCESS_TOKEN])
 
-    # Remove the installed_app, which if already removed raises a HTTP_FORBIDDEN error.
+    # Remove the installed_app, which if already removed raises a HTTPStatus.FORBIDDEN error.
     installed_app_id = entry.data[CONF_INSTALLED_APP_ID]
     try:
         await api.delete_installed_app(installed_app_id)
     except ClientResponseError as ex:
-        if ex.status == HTTP_FORBIDDEN:
+        if ex.status == HTTPStatus.FORBIDDEN:
             _LOGGER.debug(
                 "Installed app %s has already been removed",
                 installed_app_id,
@@ -238,13 +253,16 @@ async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
     _LOGGER.debug("Removed installed app %s", installed_app_id)
 
     # Remove the app if not referenced by other entries, which if already
-    # removed raises a HTTP_FORBIDDEN error.
+    # removed raises a HTTPStatus.FORBIDDEN error.
     all_entries = hass.config_entries.async_entries(DOMAIN)
     app_id = entry.data[CONF_APP_ID]
     app_count = sum(1 for entry in all_entries if entry.data[CONF_APP_ID] == app_id)
     if app_count > 1:
         _LOGGER.debug(
-            "App %s was not removed because it is in use by other configuration entries",
+            (
+                "App %s was not removed because it is in use by other configuration"
+                " entries"
+            ),
             app_id,
         )
         return
@@ -252,7 +270,7 @@ async def async_remove_entry(hass: HomeAssistant, entry: ConfigEntry) -> None:
     try:
         await api.delete_app(app_id)
     except ClientResponseError as ex:
-        if ex.status == HTTP_FORBIDDEN:
+        if ex.status == HTTPStatus.FORBIDDEN:
             _LOGGER.debug("App %s has already been removed", app_id, exc_info=True)
         else:
             raise
@@ -273,7 +291,7 @@ class DeviceBroker:
         smart_app,
         devices: Iterable,
         scenes: Iterable,
-    ):
+    ) -> None:
         """Create a new instance of the DeviceBroker."""
         self._hass = hass
         self._entry = entry
@@ -312,6 +330,7 @@ class DeviceBroker:
 
     def connect(self):
         """Connect handlers/listeners for device/lifecycle events."""
+
         # Setup interval to regenerate the refresh token on a periodic basis.
         # Tokens expire in 30 days and once expired, cannot be recovered.
         async def regenerate_refresh_token(now):
@@ -367,8 +386,7 @@ class DeviceBroker:
         for evt in req.events:
             if evt.event_type != EVENT_TYPE_DEVICE:
                 continue
-            device = self.devices.get(evt.device_id)
-            if not device:
+            if not (device := self.devices.get(evt.device_id)):
                 continue
             device.status.apply_attribute_update(
                 evt.component_id,
@@ -413,10 +431,23 @@ class DeviceBroker:
 class SmartThingsEntity(Entity):
     """Defines a SmartThings entity."""
 
+    _attr_should_poll = False
+
     def __init__(self, device: DeviceEntity) -> None:
         """Initialize the instance."""
         self._device = device
         self._dispatcher_remove = None
+        self._attr_name = device.label
+        self._attr_unique_id = device.device_id
+        self._attr_device_info = DeviceInfo(
+            configuration_url="https://account.smartthings.com",
+            identifiers={(DOMAIN, device.device_id)},
+            manufacturer=device.status.ocf_manufacturer_name,
+            model=device.status.ocf_model_number,
+            name=device.label,
+            hw_version=device.status.ocf_hardware_version,
+            sw_version=device.status.ocf_firmware_version,
+        )
 
     async def async_added_to_hass(self):
         """Device added to hass."""
@@ -434,28 +465,3 @@ class SmartThingsEntity(Entity):
         """Disconnect the device when removed."""
         if self._dispatcher_remove:
             self._dispatcher_remove()
-
-    @property
-    def device_info(self):
-        """Get attributes about the device."""
-        return {
-            "identifiers": {(DOMAIN, self._device.device_id)},
-            "name": self._device.label,
-            "model": self._device.device_type_name,
-            "manufacturer": "Unavailable",
-        }
-
-    @property
-    def name(self) -> str:
-        """Return the name of the device."""
-        return self._device.label
-
-    @property
-    def should_poll(self) -> bool:
-        """No polling needed for this device."""
-        return False
-
-    @property
-    def unique_id(self) -> str:
-        """Return a unique ID."""
-        return self._device.device_id

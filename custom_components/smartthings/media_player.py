@@ -1,48 +1,42 @@
+"""Support for media players through the SmartThings cloud API."""
 from __future__ import annotations
 
 from collections.abc import Sequence
+from typing import Any
+
 from pysmartthings import Capability, DeviceEntity
 
 from homeassistant.components.media_player import (
-    MediaPlayerEntity,
-    DEVICE_CLASS_SPEAKER,
-)
-from homeassistant.components.media_player.const import (
     DOMAIN as MEDIA_PLAYER_DOMAIN,
-    SUPPORT_PLAY,
-    SUPPORT_PAUSE,
-    SUPPORT_STOP,
-    SUPPORT_TURN_ON,
-    SUPPORT_TURN_OFF,
-    SUPPORT_SELECT_SOURCE,
-    SUPPORT_VOLUME_MUTE,
-    SUPPORT_VOLUME_STEP,
-    SUPPORT_VOLUME_SET,
-    SUPPORT_SHUFFLE_SET,
-    SUPPORT_REPEAT_SET
+    MediaPlayerEntity,
+    MediaPlayerEntityFeature,
+    MediaPlayerState,
+    RepeatMode,
 )
-from homeassistant.const import (
-    STATE_PLAYING,
-    STATE_PAUSED,
-    STATE_ON,
-    STATE_OFF
-)
+from homeassistant.config_entries import ConfigEntry
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity_platform import AddEntitiesCallback
+
 from . import SmartThingsEntity
 from .const import DATA_BROKERS, DOMAIN
 
-CONTROLLABLE_SOURCES = ["bluetooth", "wifi"]
-
 VALUE_TO_STATE = {
-    "playing": STATE_PLAYING,
-    "paused": STATE_PAUSED,
-    "on": STATE_ON,
-    "off": STATE_OFF,
-    "unknown": None,
+    "buffering": MediaPlayerState.BUFFERING,
+    "pause": MediaPlayerState.PAUSED,
+    "paused": MediaPlayerState.PAUSED,
+    "play": MediaPlayerState.PLAYING,
+    "playing": MediaPlayerState.PLAYING,
+    "stop": MediaPlayerState.IDLE,
+    "stopped": MediaPlayerState.IDLE,
 }
 
 
-async def async_setup_entry(hass, config_entry, async_add_entities):
-    """Add switches for a config entry."""
+async def async_setup_entry(
+    hass: HomeAssistant,
+    config_entry: ConfigEntry,
+    async_add_entities: AddEntitiesCallback,
+) -> None:
+    """Add media players for a config entry."""
     broker = hass.data[DOMAIN][DATA_BROKERS][config_entry.entry_id]
     async_add_entities(
         [
@@ -55,166 +49,180 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
 def get_capabilities(capabilities: Sequence[str]) -> Sequence[str] | None:
     """Return all capabilities supported if minimum required are present."""
-    min_required = [
-        Capability.media_playback,
-        Capability.switch,
-    ]
-    all_supported = [
-        Capability.switch,
-        Capability.audio_volume,
-        Capability.media_playback_shuffle,
-        Capability.media_input_source,
+    supported = [
         Capability.audio_mute,
+        Capability.audio_volume,
+        Capability.media_input_source,
         Capability.media_playback,
         Capability.media_playback_repeat,
+        Capability.media_playback_shuffle,
+        Capability.switch,
     ]
-    # Must have one of the min_required
-    if any(capability in capabilities for capability in min_required):
-        return all_supported
+    # Must have one of these.
+    media_player_capabilities = [
+        Capability.audio_mute,
+        Capability.audio_volume,
+        Capability.media_input_source,
+        Capability.media_playback,
+        Capability.media_playback_repeat,
+        Capability.media_playback_shuffle,
+    ]
+    if any(capability in capabilities for capability in media_player_capabilities):
+        return supported
     return None
 
 
 class SmartThingsMediaPlayer(SmartThingsEntity, MediaPlayerEntity):
+    """Define a SmartThings media player."""
 
-    def __init__(self, device: DeviceEntity):
+    def __init__(self, device: DeviceEntity) -> None:
         """Initialize the media_player class."""
         super().__init__(device)
         self._state = None
         self._state_attrs = None
-        self._supported_features = SUPPORT_PLAY | SUPPORT_PAUSE | SUPPORT_STOP
+        self._supported_features = (
+            MediaPlayerEntityFeature.PLAY
+            | MediaPlayerEntityFeature.PAUSE
+            | MediaPlayerEntityFeature.STOP
+        )
         if Capability.audio_volume in device.capabilities:
-            self._supported_features |= SUPPORT_VOLUME_SET | SUPPORT_VOLUME_STEP
+            self._supported_features |= (
+                MediaPlayerEntityFeature.VOLUME_SET
+                | MediaPlayerEntityFeature.VOLUME_STEP
+            )
         if Capability.audio_mute in device.capabilities:
-            self._supported_features |= SUPPORT_VOLUME_MUTE
+            self._supported_features |= MediaPlayerEntityFeature.VOLUME_MUTE
         if Capability.switch in device.capabilities:
-            self._supported_features |= SUPPORT_TURN_ON | SUPPORT_TURN_OFF
+            self._supported_features |= (
+                MediaPlayerEntityFeature.TURN_ON | MediaPlayerEntityFeature.TURN_OFF
+            )
         if Capability.media_input_source in device.capabilities:
-            self._supported_features |= SUPPORT_SELECT_SOURCE
+            self._supported_features |= MediaPlayerEntityFeature.SELECT_SOURCE
         if Capability.media_playback_shuffle in device.capabilities:
-            self._supported_features |= SUPPORT_SHUFFLE_SET
+            self._supported_features |= MediaPlayerEntityFeature.SHUFFLE_SET
         if Capability.media_playback_repeat in device.capabilities:
-            self._supported_features |= SUPPORT_REPEAT_SET
+            self._supported_features |= MediaPlayerEntityFeature.REPEAT_SET
 
-    async def async_turn_off(self, **kwargs) -> None:
-        """Turn the switch off."""
+    async def async_turn_off(self, **kwargs: Any) -> None:
+        """Turn the media player off."""
         await self._device.switch_off(set_status=True)
-        # State is set optimistically in the command above, therefore update
-        # the entity state ahead of receiving the confirming push updates
-        self.async_schedule_update_ha_state()
         self.async_write_ha_state()
 
-    async def async_turn_on(self, **kwargs) -> None:
-        """Turn the switch on."""
+    async def async_turn_on(self, **kwargs: Any) -> None:
+        """Turn the media player on."""
         await self._device.switch_on(set_status=True)
-        # State is set optimistically in the command above, therefore update
-        # the entity state ahead of receiving the confirming push updates
-        self.async_schedule_update_ha_state()
+        self.async_write_ha_state()
 
-    async def async_mute_volume(self, mute):
+    async def async_mute_volume(self, mute: bool) -> None:
+        """Mute volume."""
         if mute:
             await self._device.mute(set_status=True)
         else:
             await self._device.unmute(set_status=True)
-        self.async_schedule_update_ha_state()
+        self.async_write_ha_state()
 
-    async def async_set_volume_level(self, volume):
+    async def async_set_volume_level(self, volume: float) -> None:
+        """Set volume level."""
         await self._device.set_volume(int(volume * 100), set_status=True)
-        self.async_schedule_update_ha_state()
+        self.async_write_ha_state()
 
-    async def async_volume_up(self):
+    async def async_volume_up(self) -> None:
+        """Increase volume."""
         await self._device.volume_up(set_status=True)
-        self.async_schedule_update_ha_state()
+        self.async_write_ha_state()
 
-    async def async_volume_down(self):
+    async def async_volume_down(self) -> None:
+        """Decrease volume."""
         await self._device.volume_down(set_status=True)
-        self.async_schedule_update_ha_state()
+        self.async_write_ha_state()
 
-    async def async_media_play(self):
+    async def async_media_play(self) -> None:
+        """Play media."""
         await self._device.play(set_status=True)
-        self.async_schedule_update_ha_state()
+        self.async_write_ha_state()
 
-    async def async_media_pause(self):
+    async def async_media_pause(self) -> None:
+        """Pause media."""
         await self._device.pause(set_status=True)
-        self.async_schedule_update_ha_state()
+        self.async_write_ha_state()
 
-    async def async_media_stop(self):
+    async def async_media_stop(self) -> None:
+        """Stop media."""
         await self._device.stop(set_status=True)
-        self.async_schedule_update_ha_state()
+        self.async_write_ha_state()
 
-    async def async_select_source(self, source):
+    async def async_select_source(self, source: str) -> None:
+        """Select source."""
         await self._device.set_input_source(source, set_status=True)
-        self.async_schedule_update_ha_state()
+        self.async_write_ha_state()
 
-    async def async_set_shuffle(self, shuffle):
+    async def async_set_shuffle(self, shuffle: bool) -> None:
+        """Set shuffle mode."""
         await self._device.set_playback_shuffle(shuffle, set_status=True)
-        self.async_schedule_update_ha_state()
+        self.async_write_ha_state()
 
-    async def async_set_repeat(self, repeat):
+    async def async_set_repeat(self, repeat: RepeatMode) -> None:
+        """Set repeat mode."""
         await self._device.set_repeat(repeat, set_status=True)
-        self.async_schedule_update_ha_state()
+        self.async_write_ha_state()
 
     @property
-    def device_class(self):
-        return DEVICE_CLASS_SPEAKER
-
-    @property
-    def supported_features(self):
+    def supported_features(self) -> MediaPlayerEntityFeature:
+        """Supported features."""
         return self._supported_features
 
     @property
-    def media_title(self):
-        if self.state in [STATE_PLAYING, STATE_PAUSED]:
-            return self._device.status.attributes['trackDescription'].value
-        return None
+    def media_title(self) -> str | None:
+        """Title of the current media."""
+        return self._device.status.media_title
 
     @property
-    def state(self):
-        if self._device.status.switch:
-            if self.source is not None and self.source in CONTROLLABLE_SOURCES:
-                if self._device.status.playback_status in VALUE_TO_STATE:
-                    return VALUE_TO_STATE[self._device.status.playback_status]
-            return STATE_ON
-        return STATE_OFF
+    def state(self) -> MediaPlayerState | None:
+        """State of the media player."""
+        if not self._device.status.switch:
+            return MediaPlayerState.OFF
+        if self._device.status.playback_status in VALUE_TO_STATE:
+            return VALUE_TO_STATE[self._device.status.playback_status]
+        return MediaPlayerState.ON
 
     @property
-    def is_volume_muted(self):
-        if self.supported_features & SUPPORT_VOLUME_MUTE:
+    def is_volume_muted(self) -> bool | None:
+        """Returns if the volume is muted."""
+        if self.supported_features & MediaPlayerEntityFeature.VOLUME_MUTE:
             return self._device.status.mute
         return None
 
     @property
-    def volume_level(self):
-        if self.supported_features & SUPPORT_VOLUME_SET:
+    def volume_level(self) -> float | None:
+        """Volume level."""
+        if self.supported_features & MediaPlayerEntityFeature.VOLUME_SET:
             return self._device.status.volume / 100
         return None
 
     @property
-    def source(self):
-        if self.supported_features & SUPPORT_SELECT_SOURCE:
+    def source(self) -> str | None:
+        """Input source."""
+        if self.supported_features & MediaPlayerEntityFeature.SELECT_SOURCE:
             return self._device.status.input_source
         return None
 
     @property
-    def source_list(self):
-        if self.supported_features & SUPPORT_SELECT_SOURCE:
+    def source_list(self) -> list[str] | None:
+        """List of input sources."""
+        if self.supported_features & MediaPlayerEntityFeature.SELECT_SOURCE:
             return self._device.status.supported_input_sources
         return None
 
     @property
-    def shuffle(self):
-        if self.supported_features & SUPPORT_SHUFFLE_SET:
+    def shuffle(self) -> bool | None:
+        """Returns if shuffle mode is set."""
+        if self.supported_features & MediaPlayerEntityFeature.SHUFFLE_SET:
             return self._device.status.playback_shuffle
         return None
 
     @property
-    def repeat(self):
-        if self.supported_features & SUPPORT_REPEAT_SET:
+    def repeat(self) -> RepeatMode | None:
+        """Returns if repeat mode is set."""
+        if self.supported_features & MediaPlayerEntityFeature.REPEAT_SET:
             return self._device.status.playback_repeat_mode
         return None
-
-    @property
-    def should_poll(self) -> bool:
-        return True
-
-    async def async_update(self):
-        await self._device.command('main', 'refresh', 'refresh')

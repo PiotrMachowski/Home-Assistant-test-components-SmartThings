@@ -12,6 +12,7 @@ from homeassistant.components.media_player import (
     MediaPlayerEntityFeature,
     MediaPlayerState,
     RepeatMode,
+    MediaPlayerDeviceClass
 )
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -19,6 +20,8 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 
 from . import SmartThingsEntity
 from .const import DATA_BROKERS, DOMAIN
+
+CONTROLLABLE_SOURCES = ["bluetooth", "wifi"]
 
 VALUE_TO_STATE = {
     "buffering": MediaPlayerState.BUFFERING,
@@ -28,6 +31,8 @@ VALUE_TO_STATE = {
     "playing": MediaPlayerState.PLAYING,
     "stop": MediaPlayerState.IDLE,
     "stopped": MediaPlayerState.IDLE,
+    "on": MediaPlayerState.ON,
+    "off": MediaPlayerState.OFF,
 }
 
 
@@ -172,18 +177,25 @@ class SmartThingsMediaPlayer(SmartThingsEntity, MediaPlayerEntity):
         return self._supported_features
 
     @property
-    def media_title(self) -> str | None:
-        """Title of the current media."""
-        return self._device.status.media_title
+    def device_class(self):
+        return MediaPlayerDeviceClass.SPEAKER
+
+    @property
+    def media_title(self):
+        if (self.state in [MediaPlayerState.PLAYING, MediaPlayerState.PAUSED] and
+            'trackDescription' in self._device.status.attributes):
+            return self._device.status.attributes['trackDescription'].value
+        return None
 
     @property
     def state(self) -> MediaPlayerState | None:
         """State of the media player."""
-        if not self._device.status.switch:
-            return MediaPlayerState.OFF
-        if self._device.status.playback_status in VALUE_TO_STATE:
-            return VALUE_TO_STATE[self._device.status.playback_status]
-        return MediaPlayerState.ON
+        if self._device.status.switch:
+            if self.source is not None and self.source in CONTROLLABLE_SOURCES:
+                if self._device.status.playback_status in VALUE_TO_STATE:
+                    return VALUE_TO_STATE[self._device.status.playback_status]
+            return MediaPlayerState.ON
+        return MediaPlayerState.OFF
 
     @property
     def is_volume_muted(self) -> bool | None:

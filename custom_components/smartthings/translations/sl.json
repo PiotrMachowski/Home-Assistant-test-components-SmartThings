@@ -17,11 +17,9 @@
                 "data": {
                     "access_token": "Dostopni \u017eeton"
                 },
-                "description": "Vnesite SmartThings [\u017deton osebnega dostopa] ({token_url}), ki je bil ustvarjen po [navodilih] ({component_url}). To bo uporabljeno za ustvarjanje integracije Home Assistant v va\u0161em ra\u010dunu SmartThings.",
                 "title": "Vnesite \u017eeton za osebni dostop"
             },
             "select_location": {
-                "description": "Izberite lokacijo SmartThings, ki jo \u017eelite dodati v Home Assistant. Nato odpremo novo okno in vas prosimo, da se prijavite in pooblastite namestitev integracije Home Assistant na izbrano lokacijo.",
                 "title": "Izberite Lokacijo"
             },
             "user": {

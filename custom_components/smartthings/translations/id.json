@@ -5,7 +5,6 @@
             "no_available_locations": "Tidak ada SmartThings Location untuk disiapkan di Home Assistant."
         },
         "error": {
-            "app_setup_error": "Tidak dapat menyiapkan SmartApp. Coba lagi.",
             "token_forbidden": "Token tidak memiliki cakupan OAuth yang diperlukan.",
             "token_invalid_format": "Token harus dalam format UID/GUID",
             "token_unauthorized": "Token tidak valid atau tidak lagi diotorisasi.",
@@ -19,14 +18,12 @@
                 "data": {
                     "access_token": "Token akses"
                 },
-                "description": "Masukkan [Token Akses Pribadi]({token_url}) SmartThings yang telah dibuat sesuai [petunjuk]({component_url}). Ini akan digunakan untuk membuat integrasi Home Assistant dalam akun SmartThings Anda.",
                 "title": "Masukkan Token Akses Pribadi"
             },
             "select_location": {
                 "data": {
                     "location_id": "Lokasi"
                 },
-                "description": "Pilih SmartThings Location yang ingin ditambahkan ke Home Assistant. Kami akan membuka jendela baru dan meminta Anda untuk masuk dan mengotorisasi instalasi integrasi Home Assistant ke Location yang dipilih.",
                 "title": "Pilih Location"
             },
             "user": {

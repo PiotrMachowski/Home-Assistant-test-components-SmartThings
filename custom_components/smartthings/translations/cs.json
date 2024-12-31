@@ -26,7 +26,7 @@
                 "data": {
                     "location_id": "Poloha"
                 },
-                "description": "Vyberte um\u00edst\u011bn\u00ed SmartThings, kter\u00e9 chcete p\u0159idat do Home Assistant. Pot\u00e9 otev\u0159eme nov\u00e9 okno a po\u017e\u00e1d\u00e1me v\u00e1s o p\u0159ihl\u00e1\u0161en\u00ed a ov\u011b\u0159en\u00ed instalace integrace Home Assistanta do vybran\u00e9ho um\u00edst\u011bn\u00ed.",
+                "description": "Vyberte um\u00edst\u011bn\u00ed SmartThings, kter\u00e9 chcete p\u0159idat do Home Assistanta. Pot\u00e9 otev\u0159eme nov\u00e9 okno a po\u017e\u00e1d\u00e1me v\u00e1s o p\u0159ihl\u00e1\u0161en\u00ed a ov\u011b\u0159en\u00ed instalace integrace Home Assistanta do vybran\u00e9ho um\u00edst\u011bn\u00ed.",
                 "title": "Vybrat um\u00edst\u011bn\u00ed"
             },
             "user": {

@@ -5,7 +5,6 @@
             "no_available_locations": "Det er ingen tilgjengelige SmartThings-plasseringer \u00e5 konfigurere i Home Assistant."
         },
         "error": {
-            "app_setup_error": "Kan ikke sette opp SmartApp. V\u00e6r s\u00e5 snill, pr\u00f8v p\u00e5 nytt.",
             "token_forbidden": "Tokenet har ikke de n\u00f8dvendige OAuth-omfangene",
             "token_invalid_format": "Token m\u00e5 v\u00e6re i UID/GUID format",
             "token_unauthorized": "Tokenet er ugyldig eller er ikke lenger godkjent",
@@ -19,14 +18,12 @@
                 "data": {
                     "access_token": "Tilgangstoken"
                 },
-                "description": "Vennligst fyll inn en SmartThings [personlig tilgangskode]({token_url}) som er opprettet etter [instruksjonene]({component_url}).",
                 "title": "Fyll inn personlig tilgangskode"
             },
             "select_location": {
                 "data": {
                     "location_id": "Plassering"
                 },
-                "description": "Vennligst velg SmartThings lokasjon du vil legge til Home Assistant. Vi \u00e5pner deretter et nytt vindu og ber deg om \u00e5 logge inn og godkjenne installasjon av Home Assistant-integrasjonen p\u00e5 det valgte stedet.",
                 "title": "Velg plassering"
             },
             "user": {

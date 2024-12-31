@@ -38,6 +38,7 @@ PLATFORMS = [
     Platform.BINARY_SENSOR,
     Platform.CLIMATE,
     Platform.COVER,
+    Platform.MEDIA_PLAYER,
     Platform.FAN,
     Platform.LIGHT,
     Platform.LOCK,

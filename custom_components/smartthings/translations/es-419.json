@@ -13,11 +13,9 @@
                 "title": "Autorizar Home Assistant"
             },
             "pat": {
-                "description": "Ingrese un SmartThings [Token de acceso personal] ({token_url}) que se ha creado seg\u00fan las [instrucciones] ({component_url}). Esto se usar\u00e1 para crear la integraci\u00f3n de Home Assistant dentro de su cuenta SmartThings.",
                 "title": "Ingresar token de acceso personal"
             },
             "select_location": {
-                "description": "Seleccione la ubicaci\u00f3n de SmartThings que desea agregar a Home Assistant. Luego, abriremos una nueva ventana y le pediremos que inicie sesi\u00f3n y autorice la instalaci\u00f3n de la integraci\u00f3n de Home Assistant en la ubicaci\u00f3n seleccionada.",
                 "title": "Seleccionar ubicaci\u00f3n"
             },
             "user": {

@@ -31,5 +31,5 @@
   "iot_class": "cloud_push",
   "loggers": ["httpsig", "pysmartapp", "pysmartthings"],
   "requirements": ["pysmartapp==0.3.5", "pysmartthings==0.7.8"],
-  "version": "2024.4.3"
+  "version": "2024.12.5"
 }

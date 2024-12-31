@@ -5,7 +5,6 @@
             "no_available_locations": "No hi ha ubicacions SmartThings a configurar a Home Assistant."
         },
         "error": {
-            "app_setup_error": "No s'ha pogut configurar SmartApp. Torna-ho a provar.",
             "token_forbidden": "El token d'autenticaci\u00f3 no t\u00e9 cont\u00e9 els apartats OAuth obligatoris.",
             "token_invalid_format": "El token d'autenticaci\u00f3 ha d'estar en format UID/GUID",
             "token_unauthorized": "El token d'autenticaci\u00f3 no \u00e9s v\u00e0lid o ja no est\u00e0 autoritzat.",
@@ -19,14 +18,12 @@
                 "data": {
                     "access_token": "[%key::common::config_flow::data::access_token%]"
                 },
-                "description": "Introdueix un [token d'acc\u00e9s personal]({token_url}) d'SmartThings creat a partir de les [instruccions]({component_url}). S'utilitzar\u00e0 per crear la integraci\u00f3 de Home Assistant dins el teu compte de SmartThings.",
                 "title": "Introdueix el token d'acc\u00e9s personal"
             },
             "select_location": {
                 "data": {
                     "location_id": "Ubicaci\u00f3"
                 },
-                "description": "Selecciona la ubicaci\u00f3 de SmartThings que vols afegir a Home Assistant. A continuaci\u00f3, s'obrir\u00e0 una finestra on se't demanar\u00e0 que inici\u00efs sessi\u00f3 i autoritzis la instal\u00b7laci\u00f3 de la integraci\u00f3 de Home Assistant a la ubicaci\u00f3 seleccionada.",
                 "title": "Selecci\u00f3 d'ubicaci\u00f3"
             },
             "user": {

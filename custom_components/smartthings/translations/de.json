@@ -1,11 +1,11 @@
 {
     "config": {
         "abort": {
-            "invalid_webhook_url": "Home Assistant ist nicht richtig konfiguriert, um Updates von SmartThings zu erhalten. Die Webhook-URL ist ung\u00fcltig: \n \u2192 {webhook_url} \n\nBitte aktualisiere deine Konfiguration gem\u00e4\u00df den [Anweisungen] ({component_url}), starte den Home Assistant neu und versuche es erneut.",
+            "invalid_webhook_url": "Home Assistant ist nicht richtig konfiguriert, um Updates von SmartThings zu erhalten. Die Webhook-URL ist ung\u00fcltig: \n \u2192 {webhook_url} \n\nBitte aktualisiere deine Konfiguration gem\u00e4\u00df den [Anweisungen]({component_url}), starte Home Assistant neu und versuche es erneut.",
             "no_available_locations": "In Home Assistant sind keine SmartThings-Standorte zum Einrichten verf\u00fcgbar."
         },
         "error": {
-            "app_setup_error": "Smart App kann nicht eingerichtet werden. Bitte versuche es erneut.",
+            "app_setup_error": "SmartApp kann nicht eingerichtet werden. Bitte versuche es erneut.",
             "token_forbidden": "Das Token verf\u00fcgt nicht \u00fcber die erforderlichen OAuth-Bereiche.",
             "token_invalid_format": "Das Token muss im UID/GUID-Format vorliegen.",
             "token_unauthorized": "Das Token ist ung\u00fcltig oder nicht mehr autorisiert.",
@@ -17,16 +17,16 @@
             },
             "pat": {
                 "data": {
-                    "access_token": "Zugangstoken"
+                    "access_token": "Zugriffstoken"
                 },
-                "description": "Bitte gib ein SmartThings [Personal Access Token] ({token_url}) ein, das gem\u00e4\u00df den [Anweisungen] ({component_url}) erstellt wurde. Dies wird zur Erstellung der Home Assistant-Integration in deinem SmartThings-Konto verwendet.",
-                "title": "Gib den pers\u00f6nlichen Zugangstoken an"
+                "description": "Bitte gib ein [Personal Access Token]({token_url}) f\u00fcr SmartThings ein, das gem\u00e4\u00df den [Anweisungen]({component_url}) erstellt wurde. Dies wird zur Erstellung der Home Assistant-Integration in deinem SmartThings-Konto verwendet.",
+                "title": "Pers\u00f6nliches Zugriffstoken (PAT) eingeben"
             },
             "select_location": {
                 "data": {
                     "location_id": "Standort"
                 },
-                "description": "Bitte w\u00e4hle den SmartThings-Standort aus, den du Home Assistant hinzuf\u00fcgen m\u00f6chtest. Wir \u00f6ffnen dann ein neues Fenster und bitten dich, sich anzumelden und die Installation der Home Assistant-Integration am ausgew\u00e4hlten Standort zu autorisieren.",
+                "description": "Bitte w\u00e4hle den SmartThings-Standort aus, den du zu Home Assistant hinzuf\u00fcgen m\u00f6chtest. Wir \u00f6ffnen dann ein neues Fenster und bitten dich, sich anzumelden und die Installation der Home Assistant-Integration am ausgew\u00e4hlten Standort zu autorisieren.",
                 "title": "Standort ausw\u00e4hlen"
             },
             "user": {

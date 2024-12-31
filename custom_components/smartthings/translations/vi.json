@@ -5,7 +5,6 @@
             "no_available_locations": "Kh\u00f4ng c\u00f3 V\u1ecb tr\u00ed SmartThings n\u00e0o \u0111\u1ec3 thi\u1ebft l\u1eadp trong Home Assistant."
         },
         "error": {
-            "app_setup_error": "Kh\u00f4ng th\u1ec3 thi\u1ebft l\u1eadp SmartApp. Vui l\u00f2ng th\u1eed l\u1ea1i.",
             "token_forbidden": "Token kh\u00f4ng c\u00f3 ph\u1ea1m vi OAuth b\u1eaft bu\u1ed9c.",
             "token_invalid_format": "Token ph\u1ea3i \u1edf \u0111\u1ecbnh d\u1ea1ng UID/GUID",
             "token_unauthorized": "Token kh\u00f4ng h\u1ee3p l\u1ec7 ho\u1eb7c kh\u00f4ng c\u00f2n \u0111\u01b0\u1ee3c \u1ee7y quy\u1ec1n.",
@@ -19,14 +18,12 @@
                 "data": {
                     "access_token": "M\u00e3 truy c\u1eadp"
                 },
-                "description": "Vui l\u00f2ng nh\u1eadp [M\u00e3 th\u00f4ng b\u00e1o truy c\u1eadp c\u00e1 nh\u00e2n]({token_url}) c\u1ee7a SmartThings \u0111\u00e3 \u0111\u01b0\u1ee3c t\u1ea1o theo [h\u01b0\u1edbng d\u1eabn]({component_url}). N\u00f3 s\u1ebd \u0111\u01b0\u1ee3c s\u1eed d\u1ee5ng \u0111\u1ec3 t\u1ea1o b\u1ed9 t\u00edch h\u1ee3p Home Assistant trong t\u00e0i kho\u1ea3n SmartThings c\u1ee7a b\u1ea1n.",
                 "title": "Nh\u1eadp m\u00e3 th\u00f4ng b\u00e1o truy c\u1eadp c\u00e1 nh\u00e2n"
             },
             "select_location": {
                 "data": {
                     "location_id": "V\u1ecb tr\u00ed"
                 },
-                "description": "Vui l\u00f2ng ch\u1ecdn V\u1ecb tr\u00ed SmartThings b\u1ea1n mu\u1ed1n th\u00eam v\u00e0o Home Assistant. Sau \u0111\u00f3, ch\u00fang t\u00f4i s\u1ebd m\u1edf m\u1ed9t c\u1eeda s\u1ed5 m\u1edbi v\u00e0 y\u00eau c\u1ea7u b\u1ea1n \u0111\u0103ng nh\u1eadp v\u00e0 cho ph\u00e9p c\u00e0i \u0111\u1eb7t b\u1ed9 t\u00edch h\u1ee3p Home Assistant v\u00e0o v\u1ecb tr\u00ed \u0111\u00e3 ch\u1ecdn.",
                 "title": "Ch\u1ecdn v\u1ecb tr\u00ed"
             },
             "user": {
